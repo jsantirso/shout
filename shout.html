@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Shout! | A simple chat</title>
+	<meta charset="utf-8" />
+	
+	<!-- The following is required for the CSS Media Queries to work -->
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+	
+	<link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro%3A700%7COpen+Sans%7CLora' rel='stylesheet' type='text/css'>
+	
+	<style type="text/css">
+		/* CSS RESET */
+		
+		/* http://meyerweb.com/eric/tools/css/reset/ 
+		   v2.0 | 20110126
+		   License: none (public domain)
+		*/
+		html, body, div, span, applet, object, iframe,
+		h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+		a, abbr, acronym, address, big, cite, code,
+		del, dfn, em, img, ins, kbd, q, s, samp,
+		small, strike, strong, sub, sup, tt, var,
+		b, u, i, center,
+		dl, dt, dd, ol, ul, li,
+		fieldset, form, label, legend,
+		table, caption, tbody, tfoot, thead, tr, th, td,
+		article, aside, canvas, details, embed, 
+		figure, figcaption, footer, header, hgroup, 
+		menu, nav, output, ruby, section, summary,
+		time, mark, audio, video {
+			margin: 0;
+			padding: 0;
+			border: 0;
+			font-size: 100%;
+			font: inherit;
+			vertical-align: baseline;
+		}
+		/* HTML5 display-role reset for older browsers */
+		article, aside, details, figcaption, figure, 
+		footer, header, hgroup, menu, nav, section {
+			display: block;
+		}
+		body {
+			line-height: 1;
+		}
+		ol, ul {
+			list-style: none;
+		}
+		blockquote, q {
+			quotes: none;
+		}
+		blockquote:before, blockquote:after,
+		q:before, q:after {
+			content: '';
+			content: none;
+		}
+		table {
+			border-collapse: collapse;
+			border-spacing: 0;
+		}
+	</style>
+	
+	<style type="text/css">
+		/* MISC STYLES */
+		
+		* {
+			-moz-box-sizing: border-box;
+			-webkit-box-sizing: border-box;
+			box-sizing: border-box;
+		}
+		html {
+			background: #f5f5f5;
+			height: 100%;
+		}
+		body {
+			height: 100%;
+			padding: 0 40px 40px 440px;
+			
+			font-family: 'Lora', serif;
+		}
+		h1, h2 {
+			font-family: 'Source Sans Pro', sans-serif;
+			font-weight: 700;
+		}
+			h1 {font-size: 64px; line-height: 64px; padding: 40px 0 20px 0; letter-spacing: -4px;}
+			h2 {font-size: 24px; line-height: 24px; padding: 20px 0 10px 0; letter-spacing: -2px;}
+			h1.title {line-height: 24px; padding-top: 80px; }
+			h1 span {
+				color: #ccc;
+				font-size: 32px;
+				letter-spacing: -2px;
+			}
+		a, a:visited {
+			color: #fd62a7;
+			font-weight: 700;
+			text-decoration: none;
+		}
+			a:active, a:hover {
+				text-decoration: underline;
+			}
+		::selection {
+			background: rgba(254,87,161,0.7);
+			color: white;
+			text-shadow: none;
+		}
+		p {
+			font-size: 16px;
+			line-height: 22px;
+			padding-bottom: 12px;
+			max-width: 750px;
+		}
+			p.claim {
+				text-align: center;
+				padding: 20px;
+				background: #fff;
+				margin-bottom: 20px;
+				
+				-moz-border-radius: 5px;
+				-webkit-border-radius: 5px;
+				border-radius: 5px;
+			}
+			p.copy {
+				margin: 50px 0;
+				font-size: 12px;
+				color: #aaa;
+			}
+		strong {
+			font-weight: bold;
+		}
+		code {
+			padding: 2px 5px 3px 5px;
+			background: #fff;
+		}
+		@media only screen and (max-width: 767px) {
+			body {
+				padding: 20px;
+			}
+			p.copy {
+				margin: 20px 0;
+			}
+		}
+	</style>
+	
+	<style type="text/css">
+		/* SHOUT STYLES */
+		/*
+			The chat is designed to be inserted into various websites, so I've opted for complex
+			selectors to avoid creating extra classes and ids.
+			In fact, the whole chat requires only the #shout id
+		*/
+		
+		#shout, #shout * {
+			-moz-box-sizing: border-box;
+			-webkit-box-sizing: border-box;
+			box-sizing: border-box;
+		}
+		#shout {
+			background: #fff;
+			height: 100%; /* If set to a percent all its parents must have a value for their height */
+			min-height: 250px;
+			width: 400px;
+			padding: 15px 15px 130px 15px; /* The bottom padding must include the height of the form */
+			position: relative; /* Must be manually positioned for the form and the hover panel */
+			overflow: hidden;
+		}
+			/* The container of the messages */
+			#shout > div:nth-of-type(1) {
+				background: #fff;
+				height: 100%;
+				width: 100%;
+				color: #545454;
+				padding-right: 10px;
+				overflow: auto;
+				overflow-x: hidden;
+				overflow-y: scroll;
+				word-wrap: break-word;
+			}
+				#shout p.warning {
+					background: #fff8c4;
+					border: 2px solid #f2c779;
+					padding: 10px;
+					margin-bottom: 15px;
+					font-size: 14px;
+					line-height: 18px;
+				}
+				#shout p {
+					font-size: 12px;
+					line-height: 18px;
+					border-bottom: 1px solid #eee;
+					padding: 10px 0 10px 0;
+					position: relative;
+				}
+					#shout p > strong {
+						cursor: pointer;
+						border-bottom: 1px dashed #ccc;
+					}
+				/* A welcome message for the users */
+				#shout em {
+					display: none; /* Instead of removing it using javascript, we will use css */
+					font-family: sans-serif;
+					font-size: 48px;
+					line-height: 100px;
+					color: #eee;
+					font-weight: bold;
+					text-align: center;
+				}
+					#shout em:last-child {
+						display: block;
+					}
+			
+			/* The hover message */
+			#shout > div:nth-of-type(2) {
+				display: none;
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 100%;
+				padding: 10px 0;
+				background: #f5f5f5;
+				z-index: 100;
+				overflow: hidden;
+				
+				-webkit-box-shadow: 0 5px 5px 0 rgba(50, 50, 50, 0.1);
+				-moz-box-shadow:    0 5px 5px 0 rgba(50, 50, 50, 0.1);
+				box-shadow:         0 5px 5px 0 rgba(50, 50, 50, 0.1);
+			}
+				#shout > div:nth-of-type(2) div {
+					display: inline-block;
+					text-align: center;
+					/* white-space: nowrap; */
+					font-size: 12px;
+					line-height: 14px;
+					padding: 4px 10px;
+				}
+					#shout > div:nth-of-type(2) div:nth-of-type(2),
+					#shout > div:nth-of-type(2) div:nth-of-type(3)
+					{ width: 50%; }
+					#shout > div:nth-of-type(2) div:nth-of-type(1),
+					#shout > div:nth-of-type(2) div:nth-of-type(4)
+					{ width: 100%; }
+					#shout > div:nth-of-type(2) div:nth-of-type(1)
+					{ color: #999; padding-bottom: 5px; }
+			
+			/* The modal background */
+			#shout > div:nth-of-type(3) {
+				position: fixed;
+				top: 0;
+				left: 0;
+				z-index: 1000;
+				width: 100%;
+				height: 100%;
+				background: rgba(0, 0, 0, 0.3);
+				display: none;
+			}
+			/* The form used to submit the messages */
+			#shout > form {
+				background: #f5f5f5;
+				height: 110px;
+				width: 100%;
+				padding: 15px;
+				position: absolute;
+				left: 0;
+				bottom: 0;
+				overflow: hidden;
+			}
+				#shout label {
+					display: block;
+					position: relative;
+					width: 100%;
+					height: 100%;
+					resize: none;
+					text-align: center;
+					line-height: 100%;
+					cursor: text;
+				}
+					#shout label span {
+						/* This apparently strange design decision has been made to avoid polluting the HTML with an extra ID for the labels' FOR attr */
+						display: block;
+						position: absolute;
+						top: 0;
+						left: 0;
+						width: 100%;
+						color: #ccc;
+						text-align: center;
+						font-size: 16px;
+						line-height: 80px; /* The height of the textarea or input, this will center the label vertically */
+					}
+				#shout textarea, #shout input {
+					display: block;
+					width: 100%;
+					height: 100%;
+					padding: 10px;
+					background: #fff;
+					border: 1px solid #ccc;
+					text-align: center;
+					cursor: text;
+					font-size: 13px;
+				}
+					#shout textarea {
+						text-align: left;
+						resize: none;
+						overflow-x: hidden;
+						overflow-y: auto;
+					}
+					#shout input:focus {
+						border-color: #fd62a7;
+						outline: 3px solid #fd62a7;
+					}
+					#shout textarea:focus {
+						border-color: #8bade4;
+						outline: 3px solid #8bade4;
+					}
+		@media only screen and (max-width: 767px) {
+			#shout {
+				height: 450px;
+			}
+		}
+		
+		/* SHOUT STYLES FOR THE SAMPLE PAGE */
+		#shout, #shout * {
+			font-family: 'Open Sans', sans-serif;
+		}
+		#shout {
+			border-right: 1px solid #ddd;
+			-moz-box-shadow: 5px 0 15px rgba(0,0,0,0.1);
+			-webkit-box-shadow: 5px 0 15px rgba(0,0,0,0.1);
+			box-shadow: 5px 0 15px rgba(0,0,0,0.1);
+			
+			/* To make the Shout box stick to the left of the sample page */
+			position: fixed !important;
+			top: 0;
+			left: 0;
+		}
+			#shout p {
+				max-width: none;
+			}
+			@media only screen and (max-width: 767px) {
+				#shout {
+					-moz-box-shadow: 0 0 15px 5px rgba(0,0,0,0.1);
+					-webkit-box-shadow: 0 0 15px 5px rgba(0,0,0,0.1);
+					box-shadow: 0 0 15px 5px rgba(0,0,0,0.1);
+					
+					/* On mobile we show the chat with the flow */
+					position: relative !important;
+					width: 100% !important;
+					margin: 30px 0 30px 0;
+				}
+			}
+	</style>
+</head>
+<body id="top">
+	<h1 class="title">Shout! <span>By Joel Santirso</span></h1>
+	<p class="claim">A simple chat or "shoutbox" based on WebSockets, pure Javascript, and python</p>
+	
+	<h2>Simple and lightweight</h2>
+	<p>No images; No CSS classes; no Javascript framework; no backend dependencies. Pure HTML, CSS3, Javascript and <a href="https://www.python.org/">Python</a>.</p>
+	<p>Requires a modern browser (particularly IE10+).</p>
+
+	<h2>Beautiful and full-featured</h2>
+	<p>It adapts to a fluid design (<strong>try resizing this window!</strong>), allows username selection (handling username collisions), provides rate limiting and spam control (users can ignore particular commenters), etc.</p>
+
+	<h2>Versatile</h2>
+	<p>The frontend can be easily adapted to your preferred Javascript framework, including jQuery. The lack of CSS classes means there will be minimum interference with your existing stylesheets.</p>
+	<p>
+		The backend is <strong>a custom, multi-threaded, asynchronous HTTP/WebSockets server</strong> written in pure Python. It's however very limited and untested, and should be ported to a real server
+		for production use. It can also be adapted to your programming language of choice using the original code as a guide.
+	</p>
+
+	<h2>Educational</h2>
+	<p>I've developed <strong>Shout!</strong> to learn about WebSockets and low-level networking in Python, and I've commented the code to guide you through my steps.</p>
+	<p>For your convenience the entire project is contained in only two files: a <code>.html</code> for the frontend and a <code>.py</code> for the backend.</p>
+	
+	<h2>MIT-Licensed</h2>
+	<p>Feel free to use, edit, or distribute this code in any way you want. Check out the <a href="https://github.com/jsantirso/shout">GitHub repository</a>; your <strong>contributions</strong> will be more than welcome.</p>
+	
+	<p class="copy">Copyright &copy; 2014 Joel Santirso</p>
+	
+	<div id="shout">
+		<div>
+			<p class="warning">Your browser doesn't support Javascript, or you might have blocked it.<br />Please, activate Javascript and refresh or try again with a newer browser.</p>
+			<p class="warning">Your browser doesn't support WebSockets, or you might have blocked them.<br />Please, whitelist our website and refresh or try again with a newer browser.</p>
+			<!--[if lte IE 9]>
+			<p class="warning">It seems that you are visiting us through an old version of Internet Explorer.<br />Please note that you might experience errors unless you update your browser to a recent version.</p>
+			<![endif]-->
+			<em>Say Hi!</em>
+		</div>
+		<div><div></div><div></div><div></div><div></div></div>
+		<div></div>
+		<form autocomplete="off"><label><span>Type a <strong>username</strong> and <strong>press enter</strong></span><input disabled="disabled" type="text" maxlength="30" /></label></form>
+	</div>
+	<script>
+	
+		// Our code will be wrapped in an anonimous function to avoid polluting the global object
+		(function(window, document, options, undefined) {
+			// We define a naive javascript localization object that will be used later
+			var lang = {
+					'en': {
+						'logged_in': 'You are now logged in as [username]',
+						'conn_closed_label': 'Your connection is <strong>closed</strong>, please <strong>refresh</strong>',
+						'chat_label': 'Type a <strong>message</strong> and <strong>press enter</strong>',
+						'panel_user_ignored': 'You are ignoring this user, click to toggle',
+						'panel_user_not_ignored': 'Click to ignore this user',
+						'panel_user_is_current': '<strong>This is you!</strong>',
+						'panel_users_are_unknown': 'Remember that users might not be who they claim',
+						'panel_refresh_to_rename': 'Tired of your username? Refresh this page to change it',
+						'ignore_prompt': 'Are you sure you want to ignore this user?\nYou won\'t see further messages from him',
+						'deignore_prompt': 'Are you sure you want to start receiving messages by this user again?',
+						// 'ignore_success': 'You are now ignoring this user',
+						// 'deignore_success': 'You will now receive this user\'s messages',
+						'rate_limiting_error': 'Error:\nWe have received too many messages from your IP and we\'ve banned it for the next [seconds] seconds\nYour last message has NOT been sent.',
+						'rate_limiting_warning': 'Warning:\nWe have received too many messages from your IP and we will ban it for the next [seconds] seconds.\nPlease, write fewer messages to avoid bothering our other users.'
+					},
+					
+					'es': {
+						/* Not implemented */
+					}
+				}[options.lang_code];
+			
+			// We get access to the main DOM elements
+			var shout = document.getElementById(options.shout_id),
+				chats = shout.children[0],
+				hover = shout.children[1],
+				modal_bg = shout.children[2],
+				form = shout.children[3];
+			
+			// We remove the javascript warning
+			chats.removeChild(chats.children[0]);
+			// We check the existence of the needed API
+			if(window.WebSocket === undefined) {
+				return;
+			}
+			chats.removeChild(chats.children[0]);
+			
+			// We create a set "type"
+			var Set = function() {};
+			Set.prototype.add = function(o) { this[o] = true; };
+			Set.prototype.remove = function(o) { delete this[o]; };
+			
+			// We create certain vars that will be needed later
+			var ignored_users = new Set(),
+				current_user_id = '';
+			
+			
+			// We create some functions to manipulate the chat
+			var showModalBG = function() {
+					modal_bg.style.display = 'block';
+				},
+				hideModalBG = function() {
+					modal_bg.style.display = 'none';
+				},
+				mouseover_timeout = 0,
+				appendMessage = function(epoch, user_id, username, raw_content, autoscroll) {
+					// We check if we'll have to scroll the content here, before changing it
+					var must_scroll = autoscroll && chats.scrollTop == (chats.scrollHeight - chats.offsetHeight);
+					
+					// We create the paragraph and the strong tag
+					var p = document.createElement('p'),
+						strong = document.createElement('strong');
+					
+					// We prepare the strong tag
+					// Content
+					strong.textContent = username;
+					// Attrs
+					// We add some processing to the date to show it correctly adjusted to the locale
+					var local_date = new Date(0);
+					local_date.setUTCSeconds(epoch);
+					strong.setAttribute('data-date', local_date.toLocaleString());
+					strong.setAttribute('data-user-id', user_id);
+					
+					// We set the mouse event listeners of the strong tag
+					strong.onmouseover = function() {
+						// We wait to be sure that the user wants to see the panel
+						mouseover_timeout = setTimeout(
+							function() {
+								// We move the panel to its position and resize it accordingly
+								hover.style.top = strong.parentElement.clientHeight + strong.parentElement.offsetTop - chats.scrollTop + 'px';
+								hover.style.left = chats.offsetLeft + 'px';
+								hover.style.width = strong.parentElement.offsetWidth + 'px';
+								
+								// We change the content of the panel
+								hover.children[1].innerHTML = 'ID: ' + user_id;
+								hover.children[2].innerHTML = strong.getAttribute('data-date');
+								if(current_user_id && user_id === current_user_id) {
+									hover.children[0].innerHTML = lang['panel_refresh_to_rename'];
+									hover.children[3].innerHTML = lang['panel_user_is_current'];
+								} else {
+									hover.children[0].innerHTML = lang['panel_users_are_unknown'];
+									hover.children[3].innerHTML =
+										user_id in ignored_users ? lang['panel_user_ignored'] : lang['panel_user_not_ignored'];
+								}
+								
+								// We show the hover panel
+								hover.style.display = 'block';
+							},
+							200
+						);
+					};
+					strong.onmouseout = function() {
+						// We clear the timeout, just in case it was running
+						clearTimeout(mouseover_timeout);
+						
+						// We hide the hover panel
+						hover.style.display = 'none';
+					};
+					strong.onclick = function() {
+						// We check if the user has clicked on his own name
+						if(current_user_id && strong.getAttribute('data-user-id') === current_user_id) {
+							// We hide and show the panel
+							strong.onmouseout();
+							strong.onmouseover();
+						} else {
+							// We hide the panel
+							strong.onmouseout();
+
+							// We show a modal background
+							showModalBG();
+
+							// We must toggle the ignored status of the user
+							var user_id = strong.getAttribute('data-user-id');
+							if(confirm(lang[user_id in ignored_users ? 'deignore_prompt' : 'ignore_prompt'])) {
+								// We make the visual change
+								var entries = chats.getElementsByTagName('p');
+								for(var i = 0; i < entries.length; ++i) {
+									var entry = entries[i],
+										name = entry.children[0];
+									if(name.getAttribute('data-user-id') === user_id) {
+										entry.style.textDecoration = user_id in ignored_users ? 'none' : 'line-through';
+										entry.style.color = user_id in ignored_users ? '#545454' : '#ccc';
+									}
+								}
+								// We update our set
+								if(user_id in ignored_users) {
+									ignored_users.remove(user_id);
+								} else {
+									ignored_users.add(user_id);
+								}
+							}
+
+							// We hide the modal background
+							hideModalBG();
+
+						}
+					};
+
+					// We prepare the p tag
+					// Content
+					p.textContent = ' ' + raw_content;
+					p.insertBefore(strong, p.firstChild);
+					// We insert it into the chat
+					chats.appendChild(p);
+					
+					// We scroll the chat if necessary
+					if(must_scroll) {
+						chats.scrollTop = chats.scrollHeight;
+					}
+				};
+			
+			// We create the logic for the labels ('this' is the text container, an input or textarea)
+			var checkLabel = function() {
+					if(this.value.length === 0 && document.activeElement !== this) {
+						this.parentNode.style.textIndent = '0';
+					} else {
+						this.parentNode.style.textIndent = '10000px';
+					}
+				};
+			
+			// We assign the events to the current input, that holds the username (it's currently disabled)
+			var username_label = form.children[0],
+				username_input = username_label.children[username_label.children.length - 1];
+			username_input.onfocus = checkLabel;
+			username_input.onkeyup = checkLabel;
+			username_input.onblur = checkLabel;
+			
+			// We prepare the chat input and label
+			var chat_label = document.createElement('label'),
+				chat_input = document.createElement('textarea');
+			chat_label.appendChild(document.createElement('span'));
+			chat_label.children[0].innerHTML = lang['chat_label'];
+			chat_label.appendChild(chat_input);
+			chat_input.disabled = true;
+			chat_input.onfocus = checkLabel;
+			chat_input.onkeyup = checkLabel;
+			chat_input.onblur = checkLabel;
+			
+			// We prepare the "connection closed" label, which doesn't have an input
+			var conn_closed_label = document.createElement('label');
+			conn_closed_label.appendChild(document.createElement('span'));
+			conn_closed_label.children[0].innerHTML = lang['conn_closed_label'];
+			
+			
+			// We create the logic for the sockets
+			var socket = new WebSocket(options.websocket_url);
+			socket.onmessage = function(event) { 
+				// The WebSocket has received a message
+				// console.log("[Shout!] Message received: " + event.data);
+
+				// We separate the parts of the message (we have escaped the "|" characters as "\|" in the server).
+				// We can't do this as a regex split because lookbehind groups are not implemented in javascript.
+				// We divide the parts using a loop
+				var parts = [],
+					current_group = '';
+				for(var i = 0; i < event.data.length; ++i) {
+					var char = event.data[i], // The current character
+						prev_char = i > 0 ? event.data[i-1] : '', // The character to its left
+						next_char = i < event.data.length - 1 ? event.data[i+1] : ''; // The character to its right
+					if(char === '|' && prev_char !== '\\') {
+						// We have found our separator
+						parts.push(current_group);
+						current_group = '';
+
+					} else if(char !== '\\' || next_char !== '|') {
+						// We must add the character to the current group
+						current_group += char;
+					}
+				}
+				// We add the last group
+				if(current_group.length > 0) {
+					parts.push(current_group);
+					current_group = '';
+				}
+				
+				// We process the message
+				if(parts[0] === 'msg') {
+					// The user has received a message
+					// If we are not ignoring the user, we append it to the chat
+					if(!(parts[2] in ignored_users) || (current_user_id && parts[2] === current_user_id)) {
+						appendMessage(
+							parseInt(parts[1], 10), // epoch
+							parts[2], // user_id
+							parts[3], // username
+							parts[4], // raw_content
+							true // autoscroll
+						);
+					}
+					
+				} else if(parts[0] === 'usr') {
+					// The user has received a response to his login request
+					// We update the managed variable
+					current_user_id = parts[1];
+					// We enable the chat input
+					chat_input.disabled = false;
+
+				} else if(parts[0] === 'warning') {
+					// We must issue a warning
+					if(parts[1] === 'rate') {
+						var seconds = Math.max(2, parseInt(parts[2], 10) - parseInt((new Date()).getTime() / 1000, 10));
+						showModalBG();
+						alert(lang['rate_limiting_warning'].replace('[seconds]', seconds));
+						hideModalBG();
+					}
+
+				} else if(parts[0] === 'error') {
+					// A recoverable error has occurred
+					if(parts[1] === 'rate') {
+						var seconds = Math.max(2, parseInt(parts[2], 10) - parseInt((new Date()).getTime() / 1000, 10));
+						showModalBG();
+						alert(lang['rate_limiting_error'].replace('[seconds]', seconds));
+						hideModalBG();
+					}
+				}
+			};
+			socket.onopen = function() {
+				// The WebSocket is connected, we can send data
+				
+				// We make the form send a usr type message
+				form.onsubmit = function() {
+					// We will send the username via socket
+					var username = username_input.value;
+					console.log(username);
+					if(username.length >= 1 && username.length <= 30) {
+						// We send the message
+						socket.send('usr:' + username);
+
+						// We add some logic to the form and textarea
+						form.onsubmit = function() {
+							// We must send the message
+
+						};
+						var fixMessage = function() {
+								var max_length = 140;
+								if(chat_input.value.length > max_length || chat_input.value.indexOf('\n') >= 0) {
+									chat_input.value = chat_input.value.replace(/\n|\r/g, '').substring(0, max_length);
+								}
+							},
+							checkEnter = function(e) {
+								fixMessage();
+								// We detect the enter key
+								if((e.keyCode ? e.keyCode : e.which) === 13) {
+									if(chat_input.value.length > 0) {
+										// We submit the message
+										socket.send('msg:' + chat_input.value);
+
+										// We clear the input
+										chat_input.value = '';
+									}
+
+									// We prevent the default action (i.e. the insertion of a new-line char)
+									return false;
+								}
+								// We return true because otherwise IE prevents the arrow keys from working after the
+								// second one
+								return true;
+							};
+						chat_input.onkeydown = checkEnter;
+						chat_input.onchange = fixMessage;
+
+						// We update the form with the chat textarea
+						form.innerHTML = '';
+						form.appendChild(chat_label);
+
+						// We show a modal background
+						showModalBG();
+						// We show an informative message
+						alert(lang['logged_in'].replace('[username]', username));
+						// We hide the background
+						hideModalBG();
+					}
+					
+					// We cancel the http submit
+					return false;
+				};
+				
+				// We enable the username input
+				username_input.disabled = false;
+				
+			};
+			socket.onclose = function() { 
+				// The WebSocket has been closed
+				// console.log("[Shout!] Connection closed");
+				
+				// We show the "connection closed" label
+				form.innerHTML = '';
+				form.appendChild(conn_closed_label);
+			};
+			
+		})(
+			this,
+			this.document,
+			{	// Configuration options
+				lang_code: 'en',
+				shout_id: 'shout',
+				websocket_url: 'ws://localhost:80/chat' // 'ws://echo.websocket.org'
+			}
+		);
+	</script>
+</body>
+</html>
