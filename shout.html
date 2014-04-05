@@ -674,7 +674,8 @@
 
 						// We add some logic to the form and textarea
 						form.onsubmit = function() {
-							// We must send the message
+							// We prevent the default action
+							return false;
 
 						};
 						var fixMessage = function() {
