@@ -688,7 +688,7 @@ def serve_chat(path, query, message, addr, socket_state, state, reply, broadcast
         # We must sanitize the string and escape the "|" character (because we will be using it as
         # a separator in our responses)
         socket_state['username'] = \
-            message.replace('usr:', '', 1).replace('\r', '').replace('\n', '')[:30].replace('|', '\\|')
+            message.replace('usr:', '', 1).replace('\r', '').replace('\n', '').strip()[:30].replace('|', '\\|') or '?'
 
         # We create the rate control dict for the current IP address
         if not 'rate_control' in state:
@@ -733,7 +733,7 @@ def serve_chat(path, query, message, addr, socket_state, state, reply, broadcast
                 socket_state['usercode'],
                 socket_state['username'],  # It's already sanitized and escaped
                 # We sanitize and escape the message
-                message.replace('msg:', '', 1).replace('\r', '').replace('\n', '')[:140].replace('|', '\\|')
+                message.replace('msg:', '', 1).replace('\r', '').replace('\n', '').strip()[:140].replace('|', '\\|')
             )
 
             # We send the message to every connected peer

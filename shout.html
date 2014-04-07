@@ -666,8 +666,8 @@
 				// We make the form send a usr type message
 				form.onsubmit = function() {
 					// We will send the username via socket
-					var username = username_input.value;
-					console.log(username);
+					var username = username_input.value.trim();
+
 					if(username.length >= 1 && username.length <= 30) {
 						// We send the message
 						socket.send('usr:' + username);
@@ -680,7 +680,7 @@
 						};
 						var fixMessage = function() {
 								var max_length = 140;
-								if(chat_input.value.length > max_length || chat_input.value.indexOf('\n') >= 0) {
+								if(chat_input.value.length > max_length || chat_input.value.indexOf('\r') >= 0 || chat_input.value.indexOf('\n') >= 0) {
 									chat_input.value = chat_input.value.replace(/\n|\r/g, '').substring(0, max_length);
 								}
 							},
